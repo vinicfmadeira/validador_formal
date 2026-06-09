@@ -1,10 +1,7 @@
 #esse arquivo vai implementa uma MT para decidir a linguagem L = { w#w | w ∈ {0,1}* }"
-#m = ( q , sigma, gamma, delta, q0, b, f)"
-#sigma = {0, 1, #} e gamma = {0, 1, #, X, Y, B}, b = B"
+#mt = ( q , sigma, gamma, delta, q0, b, f)"
+#sigma = {0, 1, #} e gamma = {sigma, X, Y, B}, b = B"
 
-#algoritmo de marcacao cruzada vai pegar o primeiro digito nao-marcado da esquerda, marcar ele com x ou y, cruzar o #, "
-#achar o correspondente na direita, marcar tambem, e voltar ao inicio; repete ate zerar a esquerda; ao final verifica "
-#que a direita tambem esta toda marcada"
 
 #Estados:"
 #q0    busca digito nao-marcado (esquerda)"
