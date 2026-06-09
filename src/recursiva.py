@@ -2,7 +2,6 @@
 #mt = ( q , sigma, gamma, delta, q0, b, f)"
 #sigma = {0, 1, #} e gamma = {sigma, X, Y, B}, b = B"
 
-
 #Estados:"
 #q0    busca digito nao-marcado (esquerda)"
 #m0    marcou x; indo ate o '#'"
@@ -22,7 +21,7 @@ GAMMA = {'0', '1', '#', 'X', 'Y', 'B'}
 B = 'B'
 q0 = 'q0'
 F = {'qACEIT', 'qREJ'}
-L, R, S = 'L', 'R', 'S'
+L, R, S = 'L', 'R', 'S' #delta pode mover a cabeca para esquerda, direita ou ficar no lugar
 
 delta = {
     #q0    busca digito nao-marcado (esquerda)"

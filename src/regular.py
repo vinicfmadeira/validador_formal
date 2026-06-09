@@ -1,13 +1,3 @@
-"""
-regular.py - DFA para CPF no formato ddd.ddd.ddd-dd
-So valida o formato; digitos verificadores nao sao checados.
-
-D = (Q, Sigma, delta, q0, F)
-  Q = {q0..q14, qERR},  F = {q14}
-  Cada estado qi = consumiu i chars do padrao
-  Padrao: d d d . d d d . d d d - d d  (14 chars)
-"""
-
 #esse arquivo é para implementar um DFA que reconhece CPFs no formato ddd.ddd.ddd-dd, onde d é de 0 a 9. O DFA 
 #deve validar apenas o formato, sem verificar os dígitos verificadores.
 
