@@ -1,22 +1,16 @@
-"""
-testes.py — Bateria de Testes Integrada
-========================================
-Lê os arquivos testes/testes_*.txt e executa os três reconhecedores.
-Exibe tabela comparativa: esperado vs. obtido + número de passos.
+#esse arquivo roda os tres reconhecedores contra os arquivos de teste, e exibe uma tabela comparativa dos resultados. 
+#ele le os casos de teste dos arquivos .txt, executa cada caso no modelo correspondente (DFA, PDA, MT) 
+#exibe se o resultado foi correto ou não, além de estatísticas como número de passos. 
+#no final, ele mostra uma comparação entre os três níveis da hierarquia de Chomsky.
 
-Formato dos arquivos .txt:
-  Cada linha: <cadeia>;<esperado>
-  onde <esperado> é  ACEITA  ou  REJEITA
-  Linhas começando com '#' são comentários.
+#formato dos txt é <cadeia>;<ACEITA|REJEITA>, onde linhas com # sao ignoradas. 
 
-Uso:
-  python src/testes.py
-"""
 
 import os
 import sys
 
-# Garante que src/ está no path para importar os módulos
+sys.stdout.reconfigure(encoding='utf-8')
+
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SRC_DIR)
 
@@ -24,21 +18,14 @@ from regular       import reconhecer as dfa_reconhecer
 from livre_contexto import reconhecer as pda_reconhecer
 from recursiva     import reconhecer as mt_reconhecer
 
-# ---------------------------------------------------------------------------
-# Caminhos dos arquivos de teste
-# ---------------------------------------------------------------------------
-
 RAIZ = os.path.join(SRC_DIR, '..')
-ARQ_REGULAR       = os.path.join(RAIZ, 'testes', 'testes_regular.txt')
-ARQ_LLC           = os.path.join(RAIZ, 'testes', 'testes_livre_contexto.txt')
-ARQ_RECURSIVA     = os.path.join(RAIZ, 'testes', 'testes_recursiva.txt')
+ARQ_REGULAR   = os.path.join(RAIZ, 'testes', 'testes_regular.txt')
+ARQ_LLC       = os.path.join(RAIZ, 'testes', 'testes_livre_contexto.txt')
+ARQ_RECURSIVA = os.path.join(RAIZ, 'testes', 'testes_recursiva.txt')
 
-# ---------------------------------------------------------------------------
-# Leitor de arquivo de testes
-# ---------------------------------------------------------------------------
 
 def ler_casos(caminho: str) -> list:
-    """Lê o arquivo e retorna lista de (cadeia, esperado_bool)."""
+    #le o arquivo e devolve lista de (cadeia, esperado_bool).
     casos = []
     with open(caminho, 'r', encoding='utf-8') as f:
         for linha in f:
@@ -53,15 +40,9 @@ def ler_casos(caminho: str) -> list:
             casos.append((cadeia, esperado))
     return casos
 
-# ---------------------------------------------------------------------------
-# Executor de bateria
-# ---------------------------------------------------------------------------
 
 def executar_bateria(nome: str, casos: list, reconhecedor) -> dict:
-    """
-    Executa todos os casos de teste para um reconhecedor.
-    Retorna estatísticas e resultados detalhados.
-    """
+    #Roda todos os casos e retorna estatisticas.
     resultados = []
     acertos    = 0
 
@@ -115,12 +96,8 @@ def executar_bateria(nome: str, casos: list, reconhecedor) -> dict:
         'passos_media': media,
     }
 
-# ---------------------------------------------------------------------------
-# Comparação entre níveis
-# ---------------------------------------------------------------------------
-
+#tabela comparativa entre os tres niveis.
 def exibir_comparacao(stats: list):
-    """Exibe tabela comparativa entre os três níveis."""
     print(f"\n{'='*78}")
     print(f"  COMPARAÇÃO ENTRE OS TRÊS NÍVEIS DA HIERARQUIA DE CHOMSKY")
     print(f"{'='*78}")
@@ -138,9 +115,6 @@ def exibir_comparacao(stats: list):
     print(f"  L(DFA) = L(NFA) = L(ER)  ⊊  L(PDA) = L(GLC)  ⊊  L(MT decisor)")
     print(f"{'='*78}\n")
 
-# ---------------------------------------------------------------------------
-# Ponto de entrada
-# ---------------------------------------------------------------------------
 
 def main():
     print("\n" + "="*78)
@@ -151,7 +125,6 @@ def main():
     todas_ok = True
     stats = []
 
-    # Nível LR — DFA
     try:
         casos_lr = ler_casos(ARQ_REGULAR)
         s = executar_bateria('DFA — CPF (LR)', casos_lr, dfa_reconhecer)
@@ -162,7 +135,6 @@ def main():
         print(f"\n[ERRO] Arquivo não encontrado: {ARQ_REGULAR}")
         todas_ok = False
 
-    # Nível LLC — PDA
     try:
         casos_llc = ler_casos(ARQ_LLC)
         s = executar_bateria('PDA — Balanceamento (LLC)', casos_llc, pda_reconhecer)
@@ -173,7 +145,6 @@ def main():
         print(f"\n[ERRO] Arquivo não encontrado: {ARQ_LLC}")
         todas_ok = False
 
-    # Nível R — MT
     try:
         casos_r = ler_casos(ARQ_RECURSIVA)
         s = executar_bateria('MT — w#w (R)', casos_r, mt_reconhecer)

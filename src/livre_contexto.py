@@ -1,38 +1,10 @@
-"""
-livre_contexto.py — Reconhecedor de Linguagem Livre de Contexto (Nível LLC)
-============================================================================
-Tema 1: Verificador de parênteses e colchetes balanceados em expressão simbólica.
-
-Modelo computacional: PDA (Autômato com Pilha — Pushdown Automaton)
-Definição formal   : P = (Q, Sigma, Gamma, delta, q0, Z0, F)
-
-Fundamentação teórica — Aula 6 (Prof. Jairo):
-  • PDA é uma 7-tupla P = (Q, Σ, Γ, δ, q0, Z0, F)
-  • δ : Q × (Σ ∪ {ε}) × Γ → P(Q × Γ*)
-  • Notação de transição: a, X/α  (lê a, desempilha X, empilha α)
-  • Descrição Instantânea (ID): (q, w, γ)
-  • Passo ⊢P : (q, aw, Xβ) ⊢P (p, w, αβ)  se (p, α) ∈ δ(q, a, X)
-  • Aceitação por estado final: L(P) = {w | (q0,w,Z0) ⊢* (q,ε,α), q ∈ F}
-  • Um passo = uma aplicação da função de transição δ
-
-Linguagem:
-  L = { w ∈ {(,),[,]}* | w tem delimitadores balanceados }
-  Σ = {(, ), [, ]}   Γ = {Z0, PAREN, COLCH}
-
-Representação da pilha: lista Python de tokens string.
-  Topo = último elemento da lista (índice -1).
-  A transição a, X/α empilha os tokens de α da DIREITA para ESQUERDA
-  (convenção HMU: primeiro token de α fica no topo após o push).
-
-Exemplos aceitos  : ((x+y)*z)   [a+b]   ([]())   ε (vazia)
-Exemplos rejeitados: ((a+b)      )(      ([)]
-"""
+#esse arquivo vai implementa um PDA para verificar balanceamento de () e [] em expressoes, ignorando outros caracteres"
+#p = (q, sigma, gamme, delta, q0, z0, f)"
+#sigma = {(, ), [, ]}, gamma = {Z0, PAREN, COLCH}, "
+#f = {qACEIT}"
+#pilha: lista python - topo = indice -1"
 
 import sys
-
-# ---------------------------------------------------------------------------
-# 1. DEFINIÇÃO FORMAL DO PDA  P = (Q, Sigma, Gamma, delta, q0, Z0, F)
-# ---------------------------------------------------------------------------
 
 Q     = {'q0', 'qACEIT', 'qERR'}
 SIGMA = {'(', ')', '[', ']'}
@@ -41,61 +13,35 @@ Z0    = 'Z0'
 q0    = 'q0'
 F     = {'qACEIT'}
 
-# Caracteres de expressão que o PDA ignora (não pertencem a Σ)
+# caracteres que o PDA vai ignora
 IGNORADOS = set(
     'abcdefghijklmnopqrstuvwxyz'
     'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     '0123456789 +-*/=_,;:<>!@#$%^&|~`"\'\\?.'
 )
 
-# ---------------------------------------------------------------------------
-# Função de transição δ declarada como dicionário de dados estruturados.
-#
-# Chave  : (estado, simbolo_entrada, topo_pilha)
-#           simbolo_entrada pode ser um char de SIGMA
-# Valor  : lista de pares (novo_estado, lista_tokens_a_empilhar)
-#           lista_tokens_a_empilhar: tokens em ordem de topo→fundo a serem
-#           colocados na pilha APÓS desempilhar o topo atual.
-#           Ex: ['PAREN', 'Z0'] → PAREN no topo, Z0 embaixo.
-#
-# Semântica de uma transição  a, X / [t1, t2, ...]:
-#   1. Lê a da entrada
-#   2. Desempilha X (o topo)
-#   3. Empilha t1, t2, ... (t1 fica no topo)
-#
-# Transições:
-#   (q0, '(', X)     → (q0, [PAREN, X])  para qualquer X ∈ Γ
-#   (q0, '[', X)     → (q0, [COLCH, X])
-#   (q0, ')', PAREN) → (q0, [])          ← pop PAREN: match
-#   (q0, ')', COLCH) → (qERR, [COLCH])   ← mismatch
-#   (q0, ')', Z0)    → (qERR, [Z0])      ← underflow
-#   (q0, ']', COLCH) → (q0, [])          ← pop COLCH: match
-#   (q0, ']', PAREN) → (qERR, [PAREN])   ← mismatch
-#   (q0, ']', Z0)    → (qERR, [Z0])      ← underflow
-# ---------------------------------------------------------------------------
-
+# delta(estado, simbolo, topo) - [(novo_estado, tokens_a_empilhar)]
+#depois ele vai desempilhar o topo, e empilhar os tokens (obs: o primeira da lista é o topo da pilha)
 def _construir_delta():
     delta = {}
 
-    # Abrir parêntese: empilha PAREN sobre qualquer topo
+    # abertura:
     for topo in GAMMA:
         delta[('q0', '(', topo)] = [('q0', ['PAREN', topo])]
-
-    # Abrir colchete: empilha COLCH sobre qualquer topo
     for topo in GAMMA:
         delta[('q0', '[', topo)] = [('q0', ['COLCH', topo])]
 
-    # Fechar parêntese ')' — só casa com PAREN no topo
-    delta[('q0', ')', 'PAREN')] = [('q0',   [])]           # match: pop
+    # fechar ')'
+    delta[('q0', ')', 'PAREN')] = [('q0',   [])]           # match
     delta[('q0', ')', 'COLCH')] = [('qERR', ['COLCH'])]    # mismatch
-    delta[('q0', ')', 'Z0')]    = [('qERR', ['Z0'])]        # underflow
+    delta[('q0', ')', 'Z0')]    = [('qERR', ['Z0'])]        # pilha vazia
 
-    # Fechar colchete ']' — só casa com COLCH no topo
-    delta[('q0', ']', 'COLCH')] = [('q0',   [])]           # match: pop
+    # fechar ']'
+    delta[('q0', ']', 'COLCH')] = [('q0',   [])]           # match
     delta[('q0', ']', 'PAREN')] = [('qERR', ['PAREN'])]    # mismatch
-    delta[('q0', ']', 'Z0')]    = [('qERR', ['Z0'])]        # underflow
+    delta[('q0', ']', 'Z0')]    = [('qERR', ['Z0'])]        # pilha vazia
 
-    # qERR absorve qualquer coisa
+    # qERR ira absorver as entrada
     for s in SIGMA:
         for topo in GAMMA:
             delta[('qERR', s, topo)] = [('qERR', [topo])]
@@ -104,27 +50,15 @@ def _construir_delta():
 
 delta = _construir_delta()
 
-# ---------------------------------------------------------------------------
-# 2. SIMULADOR DO PDA — pilha como lista de tokens
-# ---------------------------------------------------------------------------
 
 def reconhecer(entrada: str) -> dict:
-    """
-    Simula o PDA sobre a cadeia `entrada`.
-
-    Retorna dicionário com:
-      - 'aceita' : bool
-      - 'passos' : int  (cada transição ⊢P = 1 passo formal)
-      - 'trace'  : lista de registros de passo
-      - 'estado_final': str
-    """
+    """Roda o PDA e devolve aceita/passos/trace/estado_final/pilha_final."""
     estado = q0
-    pilha  = [Z0]       # fundo da pilha = Z0
+    pilha  = [Z0]
     passos = 0
     trace  = []
 
     for simbolo in entrada:
-        # Ignora caracteres de expressão (não são do Σ do PDA)
         if simbolo in IGNORADOS:
             continue
 
@@ -160,7 +94,6 @@ def reconhecer(entrada: str) -> dict:
             passos += 1
             break
 
-        # Pega a primeira transição (PDA determinístico aqui)
         novo_estado, empilhar = transicoes[0]
 
         acao = (
@@ -168,9 +101,8 @@ def reconhecer(entrada: str) -> dict:
             f"(q'={novo_estado}, empilha={empilhar if empilhar else ['ε']})"
         )
 
-        # Executa: desempilha topo; empilha tokens de 'empilhar' (topo primeiro)
         pilha.pop()
-        for tok in reversed(empilhar):   # reversed: o primeiro token fica no topo
+        for tok in reversed(empilhar):
             pilha.append(tok)
 
         trace.append({
@@ -187,7 +119,7 @@ def reconhecer(entrada: str) -> dict:
         if estado == 'qERR':
             break
 
-    # Transição ε: se chegamos ao fim da entrada em q0 com pilha = [Z0] → aceita
+    # transicao epsilon: entrada esgotada com pilha igual [Z0] ira aceita
     if estado == 'q0' and pilha == [Z0]:
         trace.append({
             'passo'    : passos + 1,
@@ -210,14 +142,11 @@ def reconhecer(entrada: str) -> dict:
         'pilha_final' : pilha,
     }
 
-# ---------------------------------------------------------------------------
-# 3. EXECUÇÃO PASSO A PASSO (saída detalhada)
-# ---------------------------------------------------------------------------
 
 def exibir_execucao(entrada: str):
     resultado = reconhecer(entrada)
     print(f"\n{'='*72}")
-    print(f"PDA — Balanceamento  |  Entrada: '{entrada}'")
+    print(f"PDA — Balanceamento  /  Entrada: '{entrada}'")
     print(f"{'='*72}")
     print(f"{'Passo':<6} {'Estado':<10} {'Símbolo':<9} {'Ação'}")
     print(f"{'-'*72}")
@@ -229,9 +158,6 @@ def exibir_execucao(entrada: str):
     print(f"Passos totais : {resultado['passos']}")
     print(f"Resultado     : {'ACEITA ✓' if resultado['aceita'] else 'REJEITA ✗'}")
 
-# ---------------------------------------------------------------------------
-# 4. PONTO DE ENTRADA AUTÔNOMO
-# ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

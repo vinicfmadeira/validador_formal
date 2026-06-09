@@ -16,8 +16,8 @@
 01#10;REJEITA
 
 # --- CASOS DE BORDA ---
-# w vazio: "#" → w#w com w=ε → aceita
-#;ACEITA
+# w de um so caractere
+1#1;ACEITA
 # Sem '#': malformado → rejeita
 101;REJEITA
 # Dois '#'

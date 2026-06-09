@@ -29,18 +29,15 @@ projeto/
 │   ├── livre_contexto.py    # Reconhecedor LLC (PDA — balanceamento)
 │   ├── recursiva.py         # Reconhecedor R (MT — w#w)
 │   ├── testes.py            # Bateria integrada de testes
-│   ├── gerar_diagramas.py   # Gera diagramas .png/.dot
-│   └── gerar_relatorio.py   # Gera relatorio.pdf
+│   └── gerar_diagramas.py   # Gera diagramas .png/.dot
 ├── testes/
 │   ├── testes_regular.txt
 │   ├── testes_livre_contexto.txt
 │   └── testes_recursiva.txt
-├── diagramas/
-│   ├── dfa_regular.png
-│   ├── pda_livre_contexto.png
-│   └── mt_recursiva.png
-└── relatorio/
-    └── relatorio.pdf
+└── diagramas/
+    ├── dfa_regular.png
+    ├── pda_livre_contexto.png
+    └── mt_recursiva.png
 ```
 
 ---
@@ -78,11 +75,10 @@ python src/livre_contexto.py "((x+y)*z)"
 python src/recursiva.py "101#101"
 ```
 
-### Gerar diagramas e relatório
+### Gerar diagramas
 
 ```bash
 python src/gerar_diagramas.py
-python src/gerar_relatorio.py
 ```
 
 ---
@@ -98,11 +94,3 @@ Passo  Estado Antes   Símbolo   Estado Depois
 Passos totais : 14
 Resultado     : ACEITA ✓
 ```
-
----
-
-## Fundamentos Teóricos
-
-- **DFA** — Aula 3 (5-tupla `D = (Q, Σ, δ, q0, F)`, tabela de transição)
-- **PDA** — Aula 6 (7-tupla `P = (Q, Σ, Γ, δ, q0, Z0, F)`, IDs, critério por estado final)
-- **MT**  — Aula 7 (7-tupla `M = (Q, Σ, Γ, δ, q0, B, F)`, marcação cruzada para `w#w`)

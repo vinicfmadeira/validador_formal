@@ -1,65 +1,37 @@
 """
-regular.py — Reconhecedor de Linguagem Regular (Nível LR)
-=========================================================
-Tema 1: Validador de CPF no formato textual  ddd.ddd.ddd-dd
-         (apenas formato; dígitos verificadores NÃO são checados)
+regular.py - DFA para CPF no formato ddd.ddd.ddd-dd
+So valida o formato; digitos verificadores nao sao checados.
 
-Modelo computacional: DFA (Autômato Finito Determinístico)
-Definição formal   : D = (Q, Sigma, delta, q0, F)
-
-Fundamentação teórica — Aula 3 (Prof. Jairo):
-  • DFA é uma 5-tupla D = (Q, Σ, δ, q0, F)
-  • δ : Q × Σ → Q   (função de transição total)
-  • Aceitação: δ̂(q0, w) ∈ F
-  • Um passo = uma aplicação de δ sobre um símbolo da entrada
-
-Linguagem:
-  L = { w ∈ Σ* | w corresponde ao padrão  d d d . d d d . d d d - d d }
-  onde d ∈ {0,1,...,9}  e  Σ = {0-9, '.', '-'}
-
-Exemplos aceitos  : 123.456.789-00   000.000.000-00   999.999.999-99
-Exemplos rejeitados: 12.34.56-78      123.456.789-0    abc.def.ghi-jk
+D = (Q, Sigma, delta, q0, F)
+  Q = {q0..q14, qERR},  F = {q14}
+  Cada estado qi = consumiu i chars do padrao
+  Padrao: d d d . d d d . d d d - d d  (14 chars)
 """
+
+#esse arquivo é para implementar um DFA que reconhece CPFs no formato ddd.ddd.ddd-dd, onde d é de 0 a 9. O DFA 
+#deve validar apenas o formato, sem verificar os dígitos verificadores.
+
+#D = (q, sigma, delta, q0, f)
+#Q = {q0..q14, qERR} - f = {q14}
+#Cada estado qi representa que já foram consumidos i caracteres do padrão, são 14 chars no cpf
+
 
 import sys
 
-# ---------------------------------------------------------------------------
-# 1. DEFINIÇÃO FORMAL DO DFA  D = (Q, Sigma, delta, q0, F)
-# ---------------------------------------------------------------------------
-
-# Conjunto de estados Q
-# Cada estado representa quantos caracteres do padrão já foram consumidos.
-# Estado 'qERR' é o estado de rejeição (poço/dead state).
-# O padrão tem 14 caracteres: d d d . d d d . d d d - d d
-#   pos:                       0 1 2 3 4 5 6 7 8 9 10 11 12 13
-# q0..q13 = lendo posição 0..13; q14 = cadeia completamente aceita.
-
+# q0 ate q14 rastreiam posicao no padrao; qERR e o estado de rejeicao
 Q = {f'q{i}' for i in range(15)} | {'qERR'}
 
-# Alfabeto de entrada Σ
 SIGMA = set('0123456789.-')
-
-# Estado inicial
 q0 = 'q0'
-
-# Conjunto de estados finais F
 F = {'q14'}
 
-# Função de transição δ : Q × Σ → Q
-# Construída explicitamente como dicionário de dados estruturados.
-# Posições esperadas do padrão  d d d . d d d . d d d - d d
-#                                0 1 2 3 4 5 6 7 8 9 10 11 12 13
 DIGITOS = set('0123456789')
 
 def _construir_delta():
-    """Constrói a tabela de transição δ como dicionário."""
     delta = {}
 
-    # Posições que esperam um dígito: 0,1,2, 4,5,6, 8,9,10, 12,13
     posicoes_digito = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13]
-    # Posições que esperam '.'  : 3, 7
     posicoes_ponto  = [3, 7]
-    # Posição que espera '-'    : 11
     posicoes_hifen  = [11]
 
     for pos in posicoes_digito:
@@ -67,7 +39,6 @@ def _construir_delta():
         proximo_estado = f'q{pos + 1}'
         for c in DIGITOS:
             delta[(estado_atual, c)] = proximo_estado
-        # qualquer outro símbolo → qERR
         for c in SIGMA - DIGITOS:
             delta[(estado_atual, c)] = 'qERR'
 
@@ -85,11 +56,11 @@ def _construir_delta():
         for c in SIGMA - {'-'}:
             delta[(estado_atual, c)] = 'qERR'
 
-    # Estado final q14: qualquer símbolo adicional → qERR
+    # qualquer entrada apos q14 e erro (a cadeia esta maior que o padrao)
     for c in SIGMA:
         delta[('q14', c)] = 'qERR'
 
-    # qERR absorve tudo (estado poço)
+    # estado poco - vai absorve tudo
     for c in SIGMA:
         delta[('qERR', c)] = 'qERR'
 
@@ -97,34 +68,21 @@ def _construir_delta():
 
 delta = _construir_delta()
 
-# ---------------------------------------------------------------------------
-# 2. SIMULADOR DO DFA — aplica δ símbolo a símbolo
-# ---------------------------------------------------------------------------
 
 def reconhecer(entrada: str) -> dict:
-    """
-    Simula o DFA sobre a cadeia `entrada`.
-
-    Retorna um dicionário com:
-      - 'aceita' : bool
-      - 'passos' : int  (número de aplicações de δ)
-      - 'trace'  : list de tuplas (estado_antes, simbolo, estado_depois)
-      - 'estado_final': str
-    """
+    "Roda o DFA e devolve aceita/passos/trace/estado_final."
     estado_atual = q0
     passos = 0
     trace = []
 
     for simbolo in entrada:
-        # Símbolo fora do alfabeto → rejeita imediatamente
         if simbolo not in SIGMA:
             estado_depois = 'qERR'
             trace.append((estado_atual, simbolo, estado_depois))
-            passos += 1          # conta a transição para qERR
+            passos += 1
             estado_atual = 'qERR'
             break
 
-        # Aplica δ(estado_atual, simbolo) — 1 passo formal
         estado_depois = delta.get((estado_atual, simbolo), 'qERR')
         trace.append((estado_atual, simbolo, estado_depois))
         passos += 1
@@ -139,12 +97,8 @@ def reconhecer(entrada: str) -> dict:
         'estado_final': estado_atual,
     }
 
-# ---------------------------------------------------------------------------
-# 3. EXECUÇÃO PASSO A PASSO (saída detalhada)
-# ---------------------------------------------------------------------------
 
 def exibir_execucao(entrada: str):
-    """Imprime a execução passo a passo de uma cadeia."""
     resultado = reconhecer(entrada)
     print(f"\n{'='*60}")
     print(f"DFA — CPF  |  Entrada: '{entrada}'")
@@ -158,9 +112,6 @@ def exibir_execucao(entrada: str):
     print(f"Passos totais : {resultado['passos']}")
     print(f"Resultado     : {'ACEITA ✓' if resultado['aceita'] else 'REJEITA ✗'}")
 
-# ---------------------------------------------------------------------------
-# 4. PONTO DE ENTRADA AUTÔNOMO
-# ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
