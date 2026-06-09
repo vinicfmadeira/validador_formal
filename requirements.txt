@@ -1,0 +1,11 @@
+# Dependências do projeto Validador Formal em Três Níveis
+# Instalar com: pip install -r requirements.txt
+
+# Geração de diagramas dos autômatos
+graphviz>=0.20
+
+# Geração do relatório técnico em PDF
+reportlab>=4.0
+
+# Biblioteca de testes (opcional, para pytest)
+pytest>=7.0

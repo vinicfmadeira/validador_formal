@@ -1,0 +1,30 @@
+# testes_livre_contexto.txt — Casos de teste para o PDA (balanceamento)
+# Formato: cadeia;ACEITA  ou  cadeia;REJEITA
+# ------------------------------------------------------------
+
+# --- CADEIAS ACEITAS ---
+((x+y)*z);ACEITA
+[a+b];ACEITA
+([]());ACEITA
+
+# --- CADEIAS REJEITADAS ---
+# Parêntese não fechado
+((a+b);REJEITA
+# Fecha sem abrir
+)(;REJEITA
+# Mismatch de tipo
+([)];REJEITA
+
+# --- CASOS DE BORDA ---
+# Cadeia vazia (ε): aceita, pois nenhum delimitador está desbalanceado
+;ACEITA
+# Apenas parênteses balanceados
+();ACEITA
+# Apenas colchetes balanceados
+[];ACEITA
+# Aninhamento profundo
+(((())));ACEITA
+# Colchete fechando parêntese
+(];REJEITA
+# Mais fechamentos que aberturas
+()));REJEITA

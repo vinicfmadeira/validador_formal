@@ -1,0 +1,22 @@
+// PDA — Parênteses e colchetes balanceados
+digraph pda_balanceamento {
+	graph [bgcolor=white fontname=Helvetica rankdir=LR]
+	node [fontname=Helvetica fontsize=11]
+	edge [fontname=Helvetica fontsize=9]
+	start [label="" shape=none]
+	start -> q0
+	q0 [label=q0 shape=circle]
+	qACEIT [label=qACEIT shape=doublecircle]
+	qERR [label=qERR fillcolor="#ffcccc" shape=circle style=filled]
+	q0 -> q0 [label="(, X/PAREN X
+[, X/COLCH X
+(para todo X∈Γ)"]
+	q0 -> q0 [label="), PAREN/ε
+], COLCH/ε"]
+	q0 -> qERR [label="), COLCH/COLCH
+), Z0/Z0
+], PAREN/PAREN
+], Z0/Z0"]
+	q0 -> qACEIT [label="ε, Z0/Z0
+(entrada esgotada)"]
+}

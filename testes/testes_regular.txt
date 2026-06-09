@@ -1,0 +1,29 @@
+# testes_regular.txt — Casos de teste para o DFA (CPF)
+# Formato: cadeia;ACEITA  ou  cadeia;REJEITA
+# Mínimo: 3 aceitas + 3 rejeitadas (conforme especificação)
+# ------------------------------------------------------------
+
+# --- CADEIAS ACEITAS (formato correto ddd.ddd.ddd-dd) ---
+123.456.789-00;ACEITA
+000.000.000-00;ACEITA
+999.999.999-99;ACEITA
+
+# --- CADEIAS REJEITADAS ---
+# Formato com blocos errados
+12.34.56-78;REJEITA
+# Falta o último dígito
+123.456.789-0;REJEITA
+# Letras no lugar de dígitos
+abc.def.ghi-jk;REJEITA
+
+# --- CASOS DE BORDA ---
+# Cadeia vazia
+;REJEITA
+# Apenas dígitos, sem pontuação
+12345678900;REJEITA
+# Hifen no lugar do ponto
+123-456-789-00;REJEITA
+# Caractere extra ao final
+123.456.789-009;REJEITA
+# Hífen faltando, ponto extra
+123.456.789.00;REJEITA

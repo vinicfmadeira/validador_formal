@@ -1,0 +1,28 @@
+# testes_recursiva.txt — Casos de teste para a MT (w#w)
+# Formato: cadeia;ACEITA  ou  cadeia;REJEITA
+# ------------------------------------------------------------
+
+# --- CADEIAS ACEITAS ---
+101#101;ACEITA
+0#0;ACEITA
+11#11;ACEITA
+
+# --- CADEIAS REJEITADAS ---
+# Parte direita difere em um bit
+101#100;REJEITA
+# Tamanhos diferentes
+1#0;REJEITA
+# Ordem invertida
+01#10;REJEITA
+
+# --- CASOS DE BORDA ---
+# w vazio: "#" → w#w com w=ε → aceita
+#;ACEITA
+# Sem '#': malformado → rejeita
+101;REJEITA
+# Dois '#'
+1#1#1;REJEITA
+# Parte direita maior
+0#00;REJEITA
+# Apenas '0's iguais
+000#000;ACEITA
